@@ -19,6 +19,12 @@ config LED_STRIP_BRIGHTNESS
 	  Brightness level of each LED. Defaults to a low value to make
 	  it easier to distinguish colors.
 
+config BATTERY_ALARM_THRESHOLD_MV
+	int "Battery alarm threshold"
+	range 0 3300
+	help
+	  Threshold for battery alarm.
+
 menu "NET Configuration"
 
 config WIFI_AP_SSID

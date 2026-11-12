@@ -14,6 +14,10 @@ static const uint8_t buildin_bmp[] = {
 #include "build_in.bmp.inc"
 };
 
+static const uint8_t battery_alarm_bmp[] = {
+#include "battery_alarm.bmp.inc"
+};
+
 static bool is_heap_ready;
 static uint8_t *data_bmp;
 static uint8_t *data_epd;
@@ -139,4 +143,15 @@ void show_pic_buildin_bmp(void)
 
     decode_show_with_led(buildin_bmp);
     nv_break_magic();
+}
+
+void show_pic_battery_alarm(void)
+{
+    if (!is_heap_ready)
+    {
+        LOG_ERR("Heap of picture_show is not ready");
+        return;
+    }
+
+    decode_show_with_led(battery_alarm_bmp);
 }

@@ -12,6 +12,7 @@ target_sources(app PRIVATE
     app/app_carousel.c
     app/app_mode.c
     app/show_picture.c
+    app/battery_check.c
     component/btn.c
     component/epd.c
     component/led.c
@@ -50,6 +51,11 @@ set(gen_dir ${ZEPHYR_BINARY_DIR}/include/generated/)
 generate_inc_file_for_target(app
     ${read_dir}/build_in.bmp
     ${gen_dir}/build_in.bmp.inc
+)
+
+generate_inc_file_for_target(app
+    ${read_dir}/battery_alarm.bmp
+    ${gen_dir}/battery_alarm.bmp.inc
 )
 
 # 把需要嵌入固件的网页文件名写在这里

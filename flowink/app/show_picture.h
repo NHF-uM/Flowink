@@ -32,4 +32,11 @@ void show_pic_server_bmp(void);
  */
 void show_pic_buildin_bmp(void);
 
+
+/**
+ * @brief 显示电池低电量警告图片
+ * @param 无
+ */
+void show_pic_battery_alarm(void);
+
 #endif  

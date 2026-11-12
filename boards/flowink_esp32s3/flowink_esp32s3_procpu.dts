@@ -14,6 +14,11 @@
 	model = "Espressif ESP32S3-DevkitC PROCPU";
 	compatible = "espressif,esp32s3";
 
+    zephyr,user {
+        io-channels = <&adc0 4>;
+        adc-sel-gpios = <&gpio0 6 (GPIO_PULL_UP | GPIO_ACTIVE_HIGH)>;
+    };
+
 	aliases {
 		uart-0 = &uart0;
 	};
@@ -160,5 +165,19 @@
 			compatible = "zephyr,sdmmc-disk";
 			disk-name = "SD";
 		};
+	};
+};
+
+&adc0 {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	channel@0 {
+		reg = <0>;
+		zephyr,gain = "ADC_GAIN_1_4";
+		zephyr,reference = "ADC_REF_INTERNAL";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+		zephyr,resolution = <12>;
 	};
 };

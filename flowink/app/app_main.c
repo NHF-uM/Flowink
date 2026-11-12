@@ -8,6 +8,7 @@
 #include "svc_bmp.h"
 #include "epd.h"
 #include "pwr_manage.h"
+#include "battery_check.h"
 #include "app_mode.h"
 #include "app_carousel.h"
 
@@ -49,6 +50,8 @@ int main(void)
         LOG_WRN("Failed to initialize TF, related functions will be disabled.");
     }
 
+    battery_check();
+    
     /* 两个唤醒模式只能运行一个，且运行完就会进入深度休眠，唤醒后从 main 函数重新开始运行*/
     wakeup_source_t wake_cause = pwr_get_wakeup_cause();
     if (wake_cause == WAKEUP_TIMER)

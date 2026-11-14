@@ -1,104 +1,111 @@
-var $b = null;
-var dX = 0, dY = 0;
-var $t = [
-    [0, 0, 0],
-    [255, 255, 255],
-    [255, 255, 0],
-    [255, 0, 0],
-    [0, 0, 255],
-    [0, 255, 0]
-];
-var $d = 'lvl';
-var dW = 800, dH = 480;
-var $h = 800, $o = 480;
-var $N = 'stretch';
-var $f = false;
-var $x = false, $E = 0, $F = 0, $y = 0, $z = 0, $p = 0;
+var $b = null, dX = 0, dY = 0, dW = 800, dH = 480, $d = 'lvl', $h = 800, $o = 480, $N = 'stretch',
+    $f = false, $x = false, $E = 0, $F = 0, $y = 0, $z = 0, $p = 0, $ed = null,
+    $t = [[0, 0, 0], [255, 255, 255], [255, 255, 0], [255, 0, 0], [0, 0, 255], [0, 255, 0]];
 
-function $a(n) {
-    return document.getElementById(n);
-}
+function $a(n) { return document.getElementById(n) }
 
-function $u(files) {
-    var $ap = files[0];
-    if (!$ap) return;
-    var $ad = new FileReader();
-    $ad.onload = function (e) {
-        var img = new Image();
-        img.onload = function () {
-            $b = $J(img);
-            $ak();
-        };
-        img.src = e.target.result;
+function $u(f) {
+    var o = f[0];
+    if (!o) return;
+    var r = new FileReader();
+    r.onload = function (e) {
+        var i = new Image();
+        i.onload = function () { $b = $as($J(i)); $ak() };
+        i.onerror = function () { alert('这张图片读不出来，换一张 jpg / png 试试') };
+        i.src = e.target.result;
     };
-    $ad.readAsDataURL($ap);
+    r.onerror = function () { alert('文件读取失败，换一张试试') };
+    r.readAsDataURL(o);
 }
 
-function $at(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    $u(e.dataTransfer.files);
+function $as(c) {
+    var w = c.width, h = c.height,
+        k = Math.min(1, 4096 / Math.max(w, h), Math.sqrt(12e6 / (w * h)));
+    if (!(k < 1)) return c;
+    var s = document.createElement('canvas');
+    s.width = Math.max(1, Math.round(w * k));
+    s.height = Math.max(1, Math.round(h * k));
+    var x = s.getContext('2d');
+    x.imageSmoothingEnabled = true;
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(c, 0, 0, s.width, s.height);
+    return s;
 }
 
-function $B(e) {
-    e.stopPropagation();
-    e.preventDefault();
-}
+function $at(e) { e.stopPropagation(); e.preventDefault(); $u(e.dataTransfer.files) }
 
-function $J(img) {
-    if (img.height <= img.width) return img;
-    var rot = document.createElement('canvas');
-    rot.width = img.height;
-    rot.height = img.width;
-    var $al = rot.getContext('2d');
-    $al.translate(rot.width, 0);
-    $al.rotate(Math.PI / 2);
-    $al.drawImage(img, 0, 0);
-    return rot;
+function $B(e) { e.stopPropagation(); e.preventDefault() }
+
+function $J(i) {
+    if (i.height <= i.width) return i;
+    var c = document.createElement('canvas');
+    c.width = i.height;
+    c.height = i.width;
+    var x = c.getContext('2d');
+    x.translate(c.width, 0);
+    x.rotate(Math.PI / 2);
+    x.drawImage(i, 0, 0);
+    return c;
 }
 
 function $ak() {
-    var src = $a('source');
-    src.width = $b.width;
-    src.height = $b.height;
-    src.style.display = 'block';
-    src.getContext('2d').drawImage($b, 0, 0);
+    var s = $a('source');
+    s.width = $b.width;
+    s.height = $b.height;
+    s.style.display = 'block';
+    var c = s.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, s.width, s.height);
+    c.drawImage($b, 0, 0);
+    s.__img = $b;
     $a('srcBox').innerHTML = '';
-    $a('nud_x1').max = $b.width;
-    $a('nud_x2').max = $b.width;
-    $a('nud_y1').max = $b.height;
-    $a('nud_y2').max = $b.height;
-    $a('nud_x1').value = 0;
-    $a('nud_y1').value = 0;
-    $a('nud_x2').value = $b.width;
-    $a('nud_y2').value = $b.height;
-    dX = 0;
-    dY = 0;
-    dW = $b.width;
-    dH = $b.height;
-    $l();
-    $e();
+    if ($ed !== null) $a('dstBox').innerHTML = $ed;
+    var a = $a('nud_x1'), b = $a('nud_x2'), d = $a('nud_y1'), e = $a('nud_y2');
+    a.max = b.max = $b.width;
+    d.max = e.max = $b.height;
+    a.value = 0;
+    d.value = 0;
+    b.value = $b.width;
+    e.value = $b.height;
+    dX = 0; dY = 0; dW = $b.width; dH = $b.height;
+    $l(); $e();
 }
 
-function $e(box) {
-    var src = $a('source');
-    if (!src.width || !$b) return;
-    var ctx = src.getContext('2d');
-    ctx.drawImage($b, 0, 0);
-    var b = box || { x: dX, y: dY, w: dW, h: dH };
-    var $au = src.clientWidth || src.width;
-    var lw = Math.max(1, Math.round(2 * src.width / $au));
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.fillRect(0, 0, src.width, b.y);
-    ctx.fillRect(0, b.y + b.h, src.width, src.height - (b.y + b.h));
-    ctx.fillRect(0, b.y, b.x, b.h);
-    ctx.fillRect(b.x + b.w, b.y, src.width - (b.x + b.w), b.h);
-    if (b.w > lw && b.h > lw) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = lw;
-        ctx.setLineDash(box ? [lw * 3, lw * 2] : []);
-        ctx.strokeRect(b.x + lw / 2, b.y + lw / 2, b.w - lw, b.h - lw);
-        ctx.setLineDash([]);
+function $e(r) {
+    var s = $a('source');
+    if (!s.width || !$b) return;
+    if (s.__img !== $b) {
+        var c = s.getContext('2d');
+        c.setTransform(1, 0, 0, 1, 0, 0);
+        c.clearRect(0, 0, s.width, s.height);
+        c.drawImage($b, 0, 0);
+        s.__img = $b;
+    }
+    var L = $a('cropLayer');
+    if (!L) return;
+    var cw = L.clientWidth, ch = L.clientHeight;
+    if (!cw || !ch) return;
+    var q = Math.min(2, window.devicePixelRatio || 1),
+        W = Math.round(cw * q), H = Math.round(ch * q);
+    if (L.width !== W || L.height !== H) { L.width = W; L.height = H }
+    var x = L.getContext('2d');
+    x.setTransform(1, 0, 0, 1, 0, 0);
+    x.clearRect(0, 0, W, H);
+    var k = r || { x: dX, y: dY, w: dW, h: dH },
+        kx = W / $b.width, ky = H / $b.height,
+        bx = k.x * kx, by = k.y * ky, bw = k.w * kx, bh = k.h * ky;
+    x.fillStyle = 'rgba(0,0,0,0.45)';
+    x.fillRect(0, 0, W, by);
+    x.fillRect(0, by + bh, W, H - (by + bh));
+    x.fillRect(0, by, bx, bh);
+    x.fillRect(bx + bw, by, W - (bx + bw), bh);
+    var lw = Math.max(1, Math.round(q * 1.5));
+    if (bw > lw && bh > lw) {
+        x.strokeStyle = '#fff';
+        x.lineWidth = lw;
+        x.setLineDash(r ? [lw * 3, lw * 2] : []);
+        x.strokeRect(bx + lw / 2, by + lw / 2, bw - lw, bh - lw);
+        x.setLineDash([]);
     }
 }
 
@@ -109,27 +116,19 @@ function $l() {
     $a('crop_info').textContent = '框选 ' + r.w + '×' + r.h;
 }
 
-/* 【修改点】updateBtnState 只维护「算法」组两个按钮。
-   【删除】原第 115 行 $a('Crop_Button').className = 'bottom-btn' + ($f ? '' : ' on');
-           与第 116 行 $a('Full_Button') 的范围高亮 —— 赋值 className 是整体覆盖，
-           会把 Crop_Button 在 HTML 里写的 .btn-sm 冲成 .bottom-btn，
-           导致页面 onload 后（以及每次转换后）按钮从小按钮突变成全宽大黄按钮。
-           范围组取消高亮，改为由「全图转换」按钮本身的状态体现。 */
 function $m() {
     $a('Lvl_Button').className = 'bottom-btn' + ($d === 'lvl' ? ' on' : '');
     $a('Dif_Button').className = 'bottom-btn' + ($d === 'dif' ? ' on' : '');
 }
 
-function $S(a) {
-    $d = a;
-    $n(a);
-    $m();
-}
+function $S(a) { $d = a; $n(a); $m() }
+
+var $rc = null;
 
 function $K(e) {
-    var $C = $a('source').getBoundingClientRect();
-    var x = Math.round((e.clientX - $C.left) * $b.width / $C.width);
-    var y = Math.round((e.clientY - $C.top) * $b.height / $C.height);
+    var c = $rc || $a('source').getBoundingClientRect(),
+        x = Math.round((e.clientX - c.left) * $b.width / c.width),
+        y = Math.round((e.clientY - c.top) * $b.height / c.height);
     return {
         x: Math.max(0, Math.min($b.width, x)),
         y: Math.max(0, Math.min($b.height, y))
@@ -152,7 +151,9 @@ function $Y(e) {
     $x = true;
     $E = $y = p.x;
     $F = $z = p.y;
+    $rc = $a('source').getBoundingClientRect();
     $a('source').setPointerCapture(e.pointerId);
+    document.body.classList.add('dragging');
     e.preventDefault();
 }
 
@@ -162,33 +163,23 @@ function $Z(e) {
     $y = p.x;
     $z = p.y;
     if ($p) return;
-    $p = requestAnimationFrame(function () {
-        $p = 0;
-        $e($T());
-    });
+    $p = requestAnimationFrame(function () { $p = 0; $e($T()) });
     e.preventDefault();
 }
 
 function $U(e) {
     if (!$x) return;
     $x = false;
-    if ($p) {
-        cancelAnimationFrame($p);
-        $p = 0;
-    }
+    $rc = null;
+    document.body.classList.remove('dragging');
+    if ($p) { cancelAnimationFrame($p); $p = 0 }
     var b = $T();
-    if (b.w < 2 || b.h < 2) {
-        $e();
-        return;
-    }
+    if (b.w < 2 || b.h < 2) { $e(); return }
     $a('nud_x1').value = b.x;
     $a('nud_y1').value = b.y;
     $a('nud_x2').value = b.x + b.w;
     $a('nud_y2').value = b.y + b.h;
-    dX = b.x;
-    dY = b.y;
-    dW = b.w;
-    dH = b.h;
+    dX = b.x; dY = b.y; dW = b.w; dH = b.h;
     $e();
     $l();
     $k($d, false);
@@ -196,10 +187,10 @@ function $U(e) {
 }
 
 function $r() {
-    var x1 = parseInt($a('nud_x1').value) || 0;
-    var y1 = parseInt($a('nud_y1').value) || 0;
-    var x2 = parseInt($a('nud_x2').value) || 0;
-    var y2 = parseInt($a('nud_y2').value) || 0;
+    var x1 = parseInt($a('nud_x1').value) || 0,
+        y1 = parseInt($a('nud_y1').value) || 0,
+        x2 = parseInt($a('nud_x2').value) || 0,
+        y2 = parseInt($a('nud_y2').value) || 0;
     return {
         x: Math.min(x1, x2),
         y: Math.min(y1, y2),
@@ -209,38 +200,39 @@ function $r() {
 }
 
 function $L(r) {
-    var cv = document.createElement('canvas');
-    cv.width = $h;
-    cv.height = $o;
-    var cx = cv.getContext('2d');
-    cx.imageSmoothingEnabled = true;
-    cx.imageSmoothingQuality = 'high';
+    var c = document.createElement('canvas');
+    c.width = $h;
+    c.height = $o;
+    var x = c.getContext('2d'), s, w, h;
+    x.imageSmoothingEnabled = true;
+    x.imageSmoothingQuality = 'high';
     if ($N === 'contain') {
-        var sc = Math.min($h / r.w, $o / r.h);
-        var cw = Math.floor(r.w * sc), chh = Math.floor(r.h * sc);
-        cx.fillStyle = '#ffffff';
-        cx.fillRect(0, 0, $h, $o);
-        cx.drawImage($b, r.x, r.y, r.w, r.h, Math.floor(($h - cw) / 2), Math.floor(($o - chh) / 2), cw, chh);
+        s = Math.min($h / r.w, $o / r.h);
+        w = Math.floor(r.w * s);
+        h = Math.floor(r.h * s);
+        x.fillStyle = '#fff';
+        x.fillRect(0, 0, $h, $o);
+        x.drawImage($b, r.x, r.y, r.w, r.h, Math.floor(($h - w) / 2), Math.floor(($o - h) / 2), w, h);
     } else if ($N === 'cover') {
-        var sd = Math.max($h / r.w, $o / r.h);
-        var sw = Math.min(r.w, $h / sd), sh = Math.min(r.h, $o / sd);
-        cx.drawImage($b, r.x + (r.w - sw) / 2, r.y + (r.h - sh) / 2, sw, sh, 0, 0, $h, $o);
+        s = Math.max($h / r.w, $o / r.h);
+        w = Math.min(r.w, $h / s);
+        h = Math.min(r.h, $o / s);
+        x.drawImage($b, r.x + (r.w - w) / 2, r.y + (r.h - h) / 2, w, h, 0, 0, $h, $o);
     } else {
-        cx.drawImage($b, r.x, r.y, r.w, r.h, 0, 0, $h, $o);
+        x.drawImage($b, r.x, r.y, r.w, r.h, 0, 0, $h, $o);
     }
-    return cv;
+    return c;
 }
 
 function $O(p) {
-    var $G = parseFloat($a('val_bright').value) || 0;
-    var $aa = parseFloat($a('val_cont').value);
-    if (!($aa > 0)) $aa = 1;
-    if ($G === 0 && $aa === 1) return;
-    var n = p.data.length;
-    for (var i = 0; i < n; i += 4) {
-        p.data[i] = Math.max(0, Math.min(255, (p.data[i] - 128) * $aa + 128 + $G));
-        p.data[i + 1] = Math.max(0, Math.min(255, (p.data[i + 1] - 128) * $aa + 128 + $G));
-        p.data[i + 2] = Math.max(0, Math.min(255, (p.data[i + 2] - 128) * $aa + 128 + $G));
+    var g = parseFloat($a('val_bright').value) || 0,
+        k = parseFloat($a('val_cont').value);
+    if (!(k > 0)) k = 1;
+    if (g === 0 && k === 1) return;
+    for (var i = 0, n = p.data.length; i < n; i += 4) {
+        p.data[i] = Math.max(0, Math.min(255, (p.data[i] - 128) * k + 128 + g));
+        p.data[i + 1] = Math.max(0, Math.min(255, (p.data[i + 1] - 128) * k + 128 + g));
+        p.data[i + 2] = Math.max(0, Math.min(255, (p.data[i + 2] - 128) * k + 128 + g));
     }
 }
 
@@ -252,18 +244,14 @@ function $af(r, g, b, c) {
 }
 
 function $V(r, g, b) {
-    var monoScale = 1;
-    if ($d === 'lvl') monoScale = 1 - (parseFloat($a('val_mono').value) || 0) / 100 * 0.5;
-    var ind = 0;
-    var err = $af(r, g, b, $t[0]) * (ind < 2 ? monoScale : 1);
+    var ms = 1;
+    if ($d === 'lvl') ms = 1 - (parseFloat($a('val_mono').value) || 0) / 100 * 0.5;
+    var d = 0, e = $af(r, g, b, $t[0]) * ms;
     for (var i = 1; i < $t.length; i++) {
-        var e = $af(r, g, b, $t[i]) * (i < 2 ? monoScale : 1);
-        if (e < err) {
-            err = e;
-            ind = i;
-        }
+        var v = $af(r, g, b, $t[i]) * (i < 2 ? ms : 1);
+        if (v < e) { e = v; d = i }
     }
-    return ind;
+    return d;
 }
 
 function $am(p, i, c) {
@@ -278,85 +266,76 @@ function $q(c, r, g, b, k) {
 }
 
 function $k(algo, full) {
-    if (!$b) {
-        alert('First select image');
-        return;
-    }
+    if (!$b) { alert('请先选择一张图片'); return }
     $d = algo;
     $f = !!full;
     $m();
-    var $C = full ? { x: 0, y: 0, w: $b.width, h: $b.height } : $r();
-    dX = $C.x;
-    dY = $C.y;
-    dW = $C.w;
-    dH = $C.h;
+    var C = full ? { x: 0, y: 0, w: $b.width, h: $b.height } : $r();
+    dX = C.x; dY = C.y; dW = C.w; dH = C.h;
     $a('dstBox').innerHTML = '<canvas id="canvas"></canvas>';
-    var $H = $a('canvas');
-    $H.width = $h;
-    $H.height = $o;
-    var mid = $L($C);
-    var $P = mid.getContext('2d').getImageData(0, 0, $h, $o);
-    $O($P);
-    var $ab = $H.getContext('2d').getImageData(0, 0, $h, $o);
-    var $D = 0;
+    var O = $a('canvas');
+    O.width = $h;
+    O.height = $o;
+    var P = $L(C).getContext('2d').getImageData(0, 0, $h, $o);
+    $O(P);
+    var A = O.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, $h, $o), D = 0;
     if (algo === 'lvl') {
         for (var j = 0; j < $o; j++) {
             for (var i = 0; i < $h; i++) {
                 var pos = (j * $h + i) * 4;
-                $am($ab, $D, $V($P.data[pos], $P.data[pos + 1], $P.data[pos + 2]));
-                $D += 4;
+                $am(A, D, $V(P.data[pos], P.data[pos + 1], P.data[pos + 2]));
+                D += 4;
             }
         }
     } else {
-        var $i = parseFloat($a('val_err').value);
-        var $Q = 0, $s = 1;
-        var $c = [new Array($h), new Array($h)];
-        for (var i = 0; i < $h; i++) $c[$s][i] = [0, 0, 0];
+        var w = parseFloat($a('val_err').value), Q = 0, s = 1,
+            c = [new Array($h), new Array($h)];
+        for (var i = 0; i < $h; i++) c[s][i] = [0, 0, 0];
         for (var j = 0; j < $o; j++) {
-            $Q = (($s = $Q) + 1) & 1;
-            for (var i = 0; i < $h; i++) $c[$s][i] = [0, 0, 0];
+            Q = ((s = Q) + 1) & 1;
+            for (var i = 0; i < $h; i++) c[s][i] = [0, 0, 0];
             for (var i = 0; i < $h; i++) {
-                var pos = (j * $h + i) * 4;
-                var old = $c[$Q][i];
-                var r = $P.data[pos] + old[0];
-                var g = $P.data[pos + 1] + old[1];
-                var b = $P.data[pos + 2] + old[2];
-                var $v = $t[$V(r, g, b)];
-                $ab.data[$D++] = $v[0];
-                $ab.data[$D++] = $v[1];
-                $ab.data[$D++] = $v[2];
-                $ab.data[$D++] = 255;
-                r = (r - $v[0]);
-                g = (g - $v[1]);
-                b = (b - $v[2]);
+                var pos = (j * $h + i) * 4,
+                    o = c[Q][i],
+                    r = P.data[pos] + o[0],
+                    g = P.data[pos + 1] + o[1],
+                    b = P.data[pos + 2] + o[2],
+                    v = $t[$V(r, g, b)];
+                A.data[D++] = v[0];
+                A.data[D++] = v[1];
+                A.data[D++] = v[2];
+                A.data[D++] = 255;
+                r -= v[0];
+                g -= v[1];
+                b -= v[2];
                 if (i == 0) {
-                    $c[$s][i] = $q($c[$s][i], r, g, b, 7.0 * $i);
-                    $c[$s][i + 1] = $q($c[$s][i + 1], r, g, b, 2.0 * $i);
-                    $c[$Q][i + 1] = $q($c[$Q][i + 1], r, g, b, 7.0 * $i);
+                    c[s][i] = $q(c[s][i], r, g, b, 7 * w);
+                    c[s][i + 1] = $q(c[s][i + 1], r, g, b, 2 * w);
+                    c[Q][i + 1] = $q(c[Q][i + 1], r, g, b, 7 * w);
                 } else if (i == $h - 1) {
-                    $c[$s][i - 1] = $q($c[$s][i - 1], r, g, b, 7.0 * $i);
-                    $c[$s][i] = $q($c[$s][i], r, g, b, 9.0 * $i);
+                    c[s][i - 1] = $q(c[s][i - 1], r, g, b, 7 * w);
+                    c[s][i] = $q(c[s][i], r, g, b, 9 * w);
                 } else {
-                    $c[$s][i - 1] = $q($c[$s][i - 1], r, g, b, 3.0 * $i);
-                    $c[$s][i] = $q($c[$s][i], r, g, b, 5.0 * $i);
-                    $c[$s][i + 1] = $q($c[$s][i + 1], r, g, b, 1.0 * $i);
-                    $c[$Q][i + 1] = $q($c[$Q][i + 1], r, g, b, 7.0 * $i);
+                    c[s][i - 1] = $q(c[s][i - 1], r, g, b, 3 * w);
+                    c[s][i] = $q(c[s][i], r, g, b, 5 * w);
+                    c[s][i + 1] = $q(c[s][i + 1], r, g, b, 1 * w);
+                    c[Q][i + 1] = $q(c[Q][i + 1], r, g, b, 7 * w);
                 }
             }
         }
     }
-    $H.getContext('2d').putImageData($ab, 0, 0);
+    O.getContext('2d').putImageData(A, 0, 0);
     $e();
 }
 
 function $ag() {
-    var c = $a('canvas');
-    var w = c.width, h = c.height;
-    var p = c.getContext('2d').getImageData(0, 0, w, h);
-    var row = (w * 3 + 3) & ~3;
-    var sz = 54 + row * h;
-    var buf = new ArrayBuffer(sz);
-    var dv = new DataView(buf);
+    var c = $a('canvas'), w = c.width, h = c.height,
+        p = c.getContext('2d').getImageData(0, 0, w, h),
+        row = (w * 3 + 3) & ~3,
+        sz = 54 + row * h,
+        dv = new DataView(new ArrayBuffer(sz)),
+        o = new Uint8Array(dv.buffer, 54),
+        idx = 0;
     dv.setUint8(0, 0x42);
     dv.setUint8(1, 0x4D);
     dv.setUint32(2, sz, true);
@@ -367,41 +346,30 @@ function $ag() {
     dv.setUint16(26, 1, true);
     dv.setUint16(28, 24, true);
     dv.setUint32(30, 0, true);
-    var $ao = new Uint8Array(buf, 54);
-    var idx = 0;
     for (var y = 0; y < h; y++) {
-        var $ay = (h - 1 - y) * w * 4;
-        var off = 0;
+        var ay = (h - 1 - y) * w * 4, off = 0;
         for (var x = 0; x < w; x++) {
-            var i = $ay + x * 4;
-            $ao[idx + off + 0] = p.data[i + 2];
-            $ao[idx + off + 1] = p.data[i + 1];
-            $ao[idx + off + 2] = p.data[i];
+            var i = ay + x * 4;
+            o[idx + off] = p.data[i + 2];
+            o[idx + off + 1] = p.data[i + 1];
+            o[idx + off + 2] = p.data[i];
             off += 3;
         }
         idx += row;
     }
-    return buf;
+    return dv.buffer;
 }
 
 var $g = null;
 
 function $w() {
-    var $W = document.createElement('div');
-    $W.id = "upload-tip";
-    $W.style.position = 'fixed';
-    $W.style.top = '50%';
-    $W.style.left = '50%';
-    $W.style.transform = 'translate(-50%,-50%)';
-    $W.style.background = 'rgba(0,0,0,0.75)';
-    $W.style.color = '#fff';
-    $W.style.padding = '24px 40px';
-    $W.style.borderRadius = '8px';
-    $W.style.zIndex = '9999';
-    $W.style.fontSize = '16px';
-    $W.textContent = '正在上传，请耐心等待...';
-    document.body.appendChild($W);
-    return $W;
+    var t = document.createElement('div');
+    t.id = 'upload-tip';
+    t.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
+        'background:rgba(0,0,0,0.75);color:#fff;padding:16px 26px;border-radius:7px;z-index:9999;font-size:13.5px';
+    t.textContent = '正在上传，请耐心等待...';
+    document.body.appendChild(t);
+    return t;
 }
 
 function $j() {
@@ -411,70 +379,52 @@ function $j() {
     }
 }
 
-var is = false;
+var $lg = false;
 
 function $M() {
-    if (is) {
-        alert('无法再次上传，请等待图片刷新完成的3分钟后唤醒重连');
-        return;
-    }
-
-    if (!$d || !$a('canvas')) {
-        alert('请先选择图片并执行一次转换');
-        return;
-    }
-    var $A = $a('Send_Button');
+    if ($lg) { alert('无法再次上传，请等待图片刷新完成的3分钟后唤醒重连'); return }
+    if (!$d || !$a('canvas')) { alert('请先选择图片并执行一次转换'); return }
+    var bt = $a('Send_Button');
     $g = $w();
-    $A.disabled = true;
+    bt.disabled = true;
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/dataUP');
     xhr.setRequestHeader('Content-Type', 'image/bmp');
-    xhr.upload.onprogress = function (ev) {
-        if (!ev.lengthComputable) return;
-        var pct = (ev.loaded / ev.total * 100).toFixed(1);
-        $g.textContent = '正在上传 ' + pct + '%';
+    xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable) $g.textContent = '正在上传 ' + (e.loaded / e.total * 100).toFixed(1) + '%';
     };
     xhr.onload = function () {
-        $A.disabled = false;
+        bt.disabled = false;
         $j();
         if (xhr.status >= 200 && xhr.status < 300) {
-            is = true;
+            $lg = true;
             alert('上传成功，图片刷新中...');
         } else {
             alert('上传失败，请重传或重连WiFi，仍失败则按“电源按键”进入休眠后唤醒重试');
         }
     };
     xhr.onerror = function () {
-        $A.disabled = false;
+        bt.disabled = false;
         $j();
-        console.error('网络异常');
         alert('上传失败！网络错误');
     };
     xhr.timeout = 15000;
     xhr.ontimeout = function () {
-        $A.disabled = false;
+        bt.disabled = false;
         $j();
         alert('上传超时，请检查Wi-Fi连接');
     };
     xhr.send(new Blob([$ag()], { type: 'image/bmp' }));
 }
 
-function $n(algo) {
-    $a('row_mono').style.display = algo === 'lvl' ? '' : 'none';
-    $a('row_err').style.display = algo === 'dif' ? '' : 'none';
+function $n(a) {
+    $a('row_mono').style.display = a === 'lvl' ? '' : 'none';
+    $a('row_err').style.display = a === 'dif' ? '' : 'none';
 }
 
-function $R(id) {
-    var $ai = $a('nud_' + id);
-    var val = $a('val_' + id);
-    val.value = $ai.value;
-}
+function $R(id) { $a('val_' + id).value = $a('nud_' + id).value }
 
-function $ac(id) {
-    var $ai = $a('nud_' + id);
-    var val = $a('val_' + id);
-    $ai.value = val.value;
-}
+function $ac(id) { $a('nud_' + id).value = $a('val_' + id).value }
 
 function $I(f) {
     $N = f;
@@ -485,89 +435,54 @@ function $I(f) {
 }
 
 window.onload = function () {
-    var sb = $a('srcBox');
-    sb.ondragenter = $B;
-    sb.ondragover = $B;
-    sb.ondrop = $at;
+    $ed = $a('dstBox').innerHTML;
+
+    var sb = $a('srcBox'),
+        dz = sb.parentNode || sb;
+    dz.ondragenter = $B;
+    dz.ondragover = $B;
+    dz.ondrop = $at;
 
     ['nud_x1', 'nud_y1', 'nud_x2', 'nud_y2'].forEach(function (id) {
         $a(id).addEventListener('input', function () {
             var r = $r();
-            dX = r.x;
-            dY = r.y;
-            dW = r.w;
-            dH = r.h;
+            dX = r.x; dY = r.y; dW = r.w; dH = r.h;
             $e();
             $l();
         });
     });
 
-    var $X = $a('source');
-    $X.addEventListener('pointerdown', $Y);
-    $X.addEventListener('pointermove', $Z);
-    $X.addEventListener('pointerup', $U);
-    $X.addEventListener('pointercancel', $U);
+    var sc = $a('source');
+    sc.addEventListener('pointerdown', $Y);
+    sc.addEventListener('pointermove', $Z);
+    sc.addEventListener('pointerup', $U);
+    sc.addEventListener('pointercancel', $U);
 
     window.addEventListener('resize', function () {
+        $rc = null;
         if ($b) $e();
     });
 
     ['bright', 'cont', 'mono', 'err'].forEach(function (id) {
-        $a('nud_' + id).addEventListener('input', function () {
-            $R(id);
+        function go() {
             var a = $d;
             if (!$a('canvas')) return;
-            if (id === 'bright' || id === 'cont') {
-                $k(a, $f);
-            } else if (id === 'mono') {
-                if (a === 'lvl') $k('lvl', $f);
-            } else if (id === 'err') {
-                if (a === 'dif') $k('dif', $f);
-            }
-        });
-        $a('val_' + id).addEventListener('change', function () {
-            $ac(id);
-            var a = $d;
-            if (!$a('canvas')) return;
-            if (id === 'bright' || id === 'cont') {
-                $k(a, $f);
-            } else if (id === 'mono') {
-                if (a === 'lvl') $k('lvl', $f);
-            } else if (id === 'err') {
-                if (a === 'dif') $k('dif', $f);
-            }
-        });
+            if (id === 'bright' || id === 'cont') $k(a, $f);
+            else if (id === 'mono') { if (a === 'lvl') $k('lvl', $f) }
+            else if (id === 'err') { if (a === 'dif') $k('dif', $f) }
+        }
+        $a('nud_' + id).addEventListener('input', function () { $R(id); go() });
+        $a('val_' + id).addEventListener('change', function () { $ac(id); go() });
     });
 
-    $a('Input_Button').addEventListener('click', function () {
-        $a('File_Input').click();
-    });
-    $a('File_Input').addEventListener('change', function (e) {
-        $u(e.target.files);
-    });
-    $a('Lvl_Button').addEventListener('click', function () {
-        $S('lvl');
-    });
-    $a('Dif_Button').addEventListener('click', function () {
-        $S('dif');
-    });
-    $a('Crop_Button').addEventListener('click', function () {
-        $n($d);
-        $k($d, false);
-    });
-    $a('Full_Button').addEventListener('click', function () {
-        $n($d);
-        $k($d, true);
-    });
-    $a('Fit_Stretch').addEventListener('click', function () {
-        $I('stretch');
-    });
-    $a('Fit_Contain').addEventListener('click', function () {
-        $I('contain');
-    });
-    $a('Fit_Cover').addEventListener('click', function () {
-        $I('cover');
-    });
+    $a('Input_Button').addEventListener('click', function () { $a('File_Input').click() });
+    $a('File_Input').addEventListener('change', function (e) { $u(e.target.files) });
+    $a('Lvl_Button').addEventListener('click', function () { $S('lvl') });
+    $a('Dif_Button').addEventListener('click', function () { $S('dif') });
+    $a('Full_Button').addEventListener('click', function () { $n($d); $k($d, true) });
+    $a('Fit_Stretch').addEventListener('click', function () { $I('stretch') });
+    $a('Fit_Contain').addEventListener('click', function () { $I('contain') });
+    $a('Fit_Cover').addEventListener('click', function () { $I('cover') });
     $I('stretch');
     $n($d);
     $m();

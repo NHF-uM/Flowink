@@ -16,6 +16,14 @@ static const uint8_t script_js_gz[] = {
 #include "script.js.gz.inc"
 };
 
+static const uint8_t fx_open_js_gz[] = {
+#include "fx_open.js.gz.inc"
+};
+
+static const uint8_t ui_woff2[] = {
+#include "ui.woff2.inc"
+};
+
 static const uint8_t zkk_png[] = {
 #include "zkk.png.inc"
 };
@@ -44,6 +52,27 @@ static struct http_resource_detail_static script_js_gz_resource_detail = {
     },
     .static_data = script_js_gz,
     .static_data_len = sizeof(script_js_gz),
+};
+
+static struct http_resource_detail_static fx_open_js_gz_resource_detail = {
+    .common = {
+	.type = HTTP_RESOURCE_TYPE_STATIC,
+	.bitmask_of_supported_http_methods = BIT(HTTP_GET),
+	.content_encoding = "gzip",
+	.content_type = "text/javascript",
+    },
+    .static_data = fx_open_js_gz,
+    .static_data_len = sizeof(fx_open_js_gz),
+};
+
+static struct http_resource_detail_static ui_woff2_resource_detail = {
+    .common = {
+	.type = HTTP_RESOURCE_TYPE_STATIC,
+	.bitmask_of_supported_http_methods = BIT(HTTP_GET),
+	.content_type = "font/woff2",
+    },
+    .static_data = ui_woff2,
+    .static_data_len = sizeof(ui_woff2),
 };
 
 static struct http_resource_detail_static zkk_png_resource_detail = {
@@ -126,6 +155,10 @@ HTTP_RESOURCE_DEFINE(index_html_gz_resource, http_service, "/",
 		     &index_html_gz_resource_detail);
 HTTP_RESOURCE_DEFINE(script_js_gz_resource, http_service, "/script.js",
 		     &script_js_gz_resource_detail);
+HTTP_RESOURCE_DEFINE(fx_open_js_gz_resource, http_service, "/fx_open.js",
+		     &fx_open_js_gz_resource_detail);
+HTTP_RESOURCE_DEFINE(ui_woff2_resource, http_service, "/ui.woff2",
+		     &ui_woff2_resource_detail);
 HTTP_RESOURCE_DEFINE(zkk_png_resource, http_service, "/zkk.png", &zkk_png_resource_detail);
 HTTP_RESOURCE_DEFINE(data_up_resource, http_service, "/dataUP", &data_up_resource_detail);
 

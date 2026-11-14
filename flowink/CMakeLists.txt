@@ -56,6 +56,7 @@ generate_inc_file_for_target(app
 set(WEB_FILES
     index.html
     script.js
+    fx_open.js
 )
 
 # 遍历变量内所有内容，‘&’取出变量值——变量file=变量值
@@ -69,6 +70,11 @@ generate_inc_file_for_target(app
 )
 
 endforeach()
+
+generate_inc_file_for_target(app
+    ${read_dir}/http/font/ZCOOLKuaiLe_subset.woff2
+    ${gen_dir}/ui.woff2.inc
+)
 
 generate_inc_file_for_target(app
     ${read_dir}/http/zkk.png
